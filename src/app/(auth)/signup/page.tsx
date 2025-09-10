@@ -11,7 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PasswordStrengthIndicator, usePasswordStrength } from '@/components/auth/PasswordStrengthIndicator';
 import { UserPlus, Mail } from 'lucide-react';
-import { cn } from '../../lib/utilstilstilstilstilstils';
+import { cn } from '@/lib/utils';
 import { useSignupMutation } from '@/store/api/apiSlice';
 import { toast } from 'sonner';
 
@@ -50,11 +50,12 @@ export default function SignUpPage() {
     const validateForm = (): boolean => {
         const newErrors: FormErrors = {};
 
-        // Username validation
+        // Username validation - API expects "Firstname Lastname" format
+        const nameRegex = /^[A-Z][a-z]+\s[A-Z][a-z]+$/;
         if (!formData.userName.trim()) {
             newErrors.userName = 'Username is required';
-        } else if (formData.userName.length < 3) {
-            newErrors.userName = 'Username must be at least 3 characters';
+        } else if (!nameRegex.test(formData.userName)) {
+            newErrors.userName = 'Username must be in format "Firstname Lastname" with capital letters';
         }
 
         // Email validation
@@ -79,21 +80,25 @@ export default function SignUpPage() {
             newErrors.confirmPassword = 'Passwords do not match';
         }
 
-        // Mobile validation
-        const mobileRegex = /^[+]?[\d\s-()]{10,}$/;
+        // Mobile validation - API expects Egyptian phone pattern: /^(002|\+20)?01[0125][0-9]{8}$/
+        const egyptianPhoneRegex = /^(002|\+20)?01[0125][0-9]{8}$/;
+        const digitsOnly = formData.mobile.replace(/\D/g, '');
+
         if (!formData.mobile.trim()) {
             newErrors.mobile = 'Mobile number is required';
-        } else if (!mobileRegex.test(formData.mobile)) {
-            newErrors.mobile = 'Please enter a valid mobile number';
+        } else if (!egyptianPhoneRegex.test(formData.mobile) && !egyptianPhoneRegex.test(digitsOnly)) {
+            newErrors.mobile = 'Please enter a valid Egyptian phone number (e.g., 01234567890, +201234567890, or 00201234567890)';
         }
 
         // Terms acceptance validation
         if (!acceptTerms) {
-            // We'll show this error in the UI
+            // Terms error will be handled by the form's disabled state
         }
 
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0 && acceptTerms;
+        const isValid = Object.keys(newErrors).length === 0 && acceptTerms;
+
+        return isValid;
     };
 
     const handleInputChange = (field: keyof FormData, value: string) => {
@@ -119,39 +124,60 @@ export default function SignUpPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!validateForm()) return;
+        if (!validateForm()) {
+            return;
+        }
 
         try {
-            const response = await signup({
+            // Format phone number to digits only for API
+            const formattedPhone = formData.mobile.replace(/\D/g, '');
+
+            const requestPayload = {
                 userName: formData.userName,
                 email: formData.email,
                 password: formData.password,
                 confirmPassword: formData.confirmPassword,
-                phone: formData.mobile, // API expects 'phone' not 'mobile'
-            }).unwrap();
-            
-            console.log('Signup successful:', response);
+                phone: formattedPhone, // API expects digits only
+            };
+
+            await signup(requestPayload).unwrap();
 
             // Store email for email confirmation
             localStorage.setItem('confirmEmail', formData.email);
-            
+
             toast.success('Account created successfully! Please check your email for verification.');
 
             // Redirect to confirm email page after successful registration
             router.push('/confirm-email');
-        } catch (error: any) {
-            console.error('Registration error:', error);
-            
+        } catch (error: unknown) {
+            // Type guard for error object
+            const apiError = error as { status?: number; data?: { message?: string; error?: string; errors?: Record<string, string> } };
+
             // Handle different error types
-            if (error?.status === 409) {
+            if (apiError?.status === 409) {
                 setErrors({ email: 'Email already exists. Please use a different email or sign in.' });
                 toast.error('Email already registered');
-            } else if (error?.status === 400) {
-                const errorMessage = error?.data?.message || error?.data?.error || 'Invalid registration data.';
-                setErrors({ email: errorMessage });
+            } else if (apiError?.status === 400) {
+                const errorMessage = apiError?.data?.message || apiError?.data?.error || 'Invalid registration data.';
+
+                // If there are field-specific errors, try to map them
+                if (apiError?.data?.errors) {
+                    const fieldErrors: FormErrors = {};
+                    const apiErrors = apiError.data.errors;
+
+                    if (apiErrors.userName) fieldErrors.userName = apiErrors.userName;
+                    if (apiErrors.email) fieldErrors.email = apiErrors.email;
+                    if (apiErrors.password) fieldErrors.password = apiErrors.password;
+                    if (apiErrors.phone) fieldErrors.mobile = apiErrors.phone;
+
+                    setErrors(fieldErrors);
+                } else {
+                    setErrors({ email: errorMessage });
+                }
+
                 toast.error(errorMessage);
             } else {
-                const errorMessage = error?.data?.message || 'Registration failed. Please try again.';
+                const errorMessage = apiError?.data?.message || 'Registration failed. Please try again.';
                 setErrors({ email: errorMessage });
                 toast.error(errorMessage);
             }
@@ -160,7 +186,7 @@ export default function SignUpPage() {
 
     const handleGoogleSignUp = () => {
         // TODO: Implement Google OAuth
-        console.log('Google sign up clicked');
+        toast.info('Google sign up is coming soon!');
     };
 
     const handleGuestSignUp = () => {
@@ -199,7 +225,7 @@ export default function SignUpPage() {
                                     <Mail className="w-4 h-4 mr-2" />
                                     Continue with Google
                                 </Button>
-                                
+
                                 <Button
                                     type="button"
                                     variant="secondary"
@@ -226,12 +252,12 @@ export default function SignUpPage() {
                                 {/* Username */}
                                 <div className="space-y-2">
                                     <label htmlFor="userName" className="text-sm font-medium text-foreground">
-                                        Username *
+                                        Full Name *
                                     </label>
                                     <Input
                                         id="userName"
                                         type="text"
-                                        placeholder="Enter your username"
+                                        placeholder="e.g., (Firstname Lastname)"
                                         value={formData.userName}
                                         onChange={(e) => handleInputChange('userName', e.target.value)}
                                         className={cn(errors.userName && 'border-red-500')}
@@ -269,7 +295,7 @@ export default function SignUpPage() {
                                     <Input
                                         id="mobile"
                                         type="tel"
-                                        placeholder="Enter your mobile number"
+                                        placeholder="e.g., 01234567890, +201234567890, or 00201234567890"
                                         value={formData.mobile}
                                         onChange={(e) => handleInputChange('mobile', e.target.value)}
                                         className={cn(errors.mobile && 'border-red-500')}

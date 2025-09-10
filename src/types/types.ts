@@ -88,7 +88,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   confirmPassword: string;
-  phone: string; // API expects 'phone' not 'mobile'
+  phone: string; 
 }
 
 // Password validation types
