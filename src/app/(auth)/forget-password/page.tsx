@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { KeyRound, Mail } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn } from '@/lib/utils';
 import { useForgetPasswordMutation } from '@/store/api/apiSlice';
 import { toast } from 'sonner';
 
@@ -47,7 +47,7 @@ export default function ForgetPasswordPage() {
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -56,25 +56,25 @@ export default function ForgetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     try {
       await forgetPassword({ email: formData.email }).unwrap();
-      
+
       // Store email for OTP verification
       localStorage.setItem('resetEmail', formData.email);
-      
+
       setIsSuccess(true);
       toast.success('Verification code sent to your email!');
-      
+
       // Redirect to OTP page after successful email submission
       setTimeout(() => {
         router.push('/forget-password/otp');
       }, 2000);
     } catch (error: any) {
       console.error('Forgot password error:', error);
-      
+
       // Handle different error types
       if (error?.status === 404) {
         setErrors({ email: 'Email address not found. Please check your email.' });
@@ -97,7 +97,7 @@ export default function ForgetPasswordPage() {
           <div className="flex justify-end">
             <ThemeToggle />
           </div>
-          
+
           <Card>
             <CardHeader className="text-center">
               <div className="mx-auto w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-4">
@@ -114,7 +114,7 @@ export default function ForgetPasswordPage() {
                   Redirecting to verification page...
                 </p>
               </div>
-              <Button 
+              <Button
                 onClick={() => router.push('/forget-password/otp')}
                 className="w-full"
               >
@@ -134,7 +134,7 @@ export default function ForgetPasswordPage() {
         <div className="flex justify-end">
           <ThemeToggle />
         </div>
-        
+
         <Card>
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -164,15 +164,15 @@ export default function ForgetPasswordPage() {
                   <p className="text-sm text-red-600">{errors.email}</p>
                 )}
               </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full" 
+
+              <Button
+                type="submit"
+                className="w-full"
                 disabled={isLoading}
               >
                 {isLoading ? 'Sending...' : 'Send Verification Code'}
               </Button>
-              
+
               <div className="text-center text-sm text-muted-foreground">
                 Remember your password?{' '}
                 <Link href="/signin" className="text-primary hover:underline">

@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { LogIn, Mail } from 'lucide-react';
-import { cn } from '../../lib/utilstilstilstilstilstils';
+import { cn } from '@/lib/utils';
 import { useLoginMutation } from '@/store/api/apiSlice';
 import { useAppDispatch } from '@/store/hooks';
 import { setCredentials } from '@/store/slices/authSlice';
@@ -60,7 +60,7 @@ export default function SignIn() {
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -69,28 +69,28 @@ export default function SignIn() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     try {
       const response = await login({
         email: formData.email,
         password: formData.password,
       }).unwrap();
-      
+
       // Store user data and token in Redux
       dispatch(setCredentials({
         user: response.user,
         token: response.token,
       }));
-      
+
       toast.success('Login successful!');
-      
+
       // Redirect to user profile after successful login
       router.push(`/profile/${response.user.id}`);
     } catch (error: any) {
       console.error('Login error:', error);
-      
+
       // Handle different error types
       if (error?.status === 401) {
         setErrors({ email: 'Invalid email or password.' });
@@ -126,7 +126,7 @@ export default function SignIn() {
         <div className="flex justify-end">
           <ThemeToggle />
         </div>
-        
+
         <Card>
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -149,7 +149,7 @@ export default function SignIn() {
                 <Mail className="w-4 h-4 mr-2" />
                 Continue with Google
               </Button>
-              
+
               <Button
                 type="button"
                 variant="secondary"
@@ -218,9 +218,9 @@ export default function SignIn() {
               </div>
 
               {/* Submit Button */}
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing In...' : 'Sign In'}
