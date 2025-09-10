@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ReduxProvider } from "@/store/providers/ReduxProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { ApiErrorBoundary } from "@/components/error-boundary";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +33,15 @@ export default function RootLayout({
       >
         <ReduxProvider>
           <ThemeProvider>
-            {children}
+            <ApiErrorBoundary>
+              {children}
+            </ApiErrorBoundary>
+            <Toaster 
+              position="top-right"
+              expand={true}
+              richColors={true}
+              closeButton={true}
+            />
           </ThemeProvider>
         </ReduxProvider>
       </body>
