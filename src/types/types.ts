@@ -52,6 +52,31 @@ export interface ThemeState {
   systemTheme: 'light' | 'dark';
 }
 
+// Redux Store Types
+export interface RootState {
+  auth: AuthState;
+  theme: ThemeState;
+  api: Record<string, unknown>; // RTK Query API slice
+}
+
+// RTK Query Base Types
+export interface BaseQueryError {
+  status: number;
+  data: {
+    message: string;
+    code?: string;
+    details?: Record<string, unknown>;
+  };
+}
+
+export interface MutationResponse<T = Record<string, unknown>> {
+  data?: T;
+  error?: BaseQueryError;
+  isLoading: boolean;
+  isSuccess: boolean;
+  isError: boolean;
+}
+
 // API Request/Response Types
 export interface LoginRequest {
   email: string;
