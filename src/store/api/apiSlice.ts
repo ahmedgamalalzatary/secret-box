@@ -5,20 +5,22 @@ import type {
   AuthResponse,
   LoginRequest,
   RegisterRequest,
+  ForgetPasswordRequest,
+  VerifyForgetPasswordRequest,
   ResetPasswordRequest,
-  VerifyCodeRequest,
-  UpdatePasswordRequest,
+  ChangePasswordRequest,
   ResendVerificationRequest,
 } from '@/types/types';
 
 // Base query with auth token
 const baseQuery = fetchBaseQuery({
-  baseUrl: '/api', // Adjust this to your API base URL
+  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://secretbox-production.up.railway.app',
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;
     if (token) {
-      headers.set('authorization', `Bearer ${token}`);
+      headers.set('authorization', token);
     }
+    headers.set('content-type', 'application/json');
     return headers;
   },
 });
@@ -57,28 +59,39 @@ export const apiSlice = createApi({
     }),
 
     // Password reset endpoints
-    requestPasswordReset: builder.mutation<{ message: string }, ResetPasswordRequest>({
+    forgetPassword: builder.mutation<void, ForgetPasswordRequest>({
       query: (data) => ({
-        url: '/auth/forgot-password',
+        url: '/auth/forget-password',
         method: 'POST',
         body: data,
       }),
     }),
 
-    verifyResetCode: builder.mutation<{ message: string; token: string }, VerifyCodeRequest>({
+    verifyForgetPassword: builder.mutation<void, VerifyForgetPasswordRequest>({
       query: (data) => ({
-        url: '/auth/verify-reset-code',
+        url: '/auth/verify-forget-password',
         method: 'POST',
         body: data,
       }),
     }),
 
-    updatePassword: builder.mutation<{ message: string }, UpdatePasswordRequest>({
+    resetPassword: builder.mutation<void, ResetPasswordRequest>({
       query: (data) => ({
         url: '/auth/reset-password',
         method: 'POST',
         body: data,
       }),
+      invalidatesTags: ['Auth', 'User'],
+    }),
+
+    // Change password endpoint
+    changePassword: builder.mutation<void, ChangePasswordRequest>({
+      query: (data) => ({
+        url: '/auth/change-password',
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['Auth', 'User'],
     }),
 
     // Email verification endpoints
@@ -121,9 +134,10 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useLogoutMutation,
-  useRequestPasswordResetMutation,
-  useVerifyResetCodeMutation,
-  useUpdatePasswordMutation,
+  useForgetPasswordMutation,
+  useVerifyForgetPasswordMutation,
+  useResetPasswordMutation,
+  useChangePasswordMutation,
   useResendVerificationMutation,
   useVerifyEmailMutation,
   useGetCurrentUserQuery,

@@ -1,14 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PasswordStrengthIndicator, usePasswordStrength } from '@/components/auth/PasswordStrengthIndicator';
+import { useResetPasswordMutation } from '@/store/api/apiSlice';
 import { Lock, CheckCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface FormData {
   password: string;
@@ -22,14 +24,33 @@ interface FormErrors {
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [resetPassword, { isLoading: isResetting }] = useResetPasswordMutation();
+  
   const [formData, setFormData] = useState<FormData>({
     password: '',
     confirmPassword: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+
+  // Get email and OTP from URL parameters or localStorage
+  useEffect(() => {
+    const emailParam = searchParams.get('email') || localStorage.getItem('resetEmail') || '';
+    const otpParam = searchParams.get('otp') || localStorage.getItem('resetOTP') || '';
+    
+    setEmail(emailParam);
+    setOtp(otpParam);
+    
+    // If no email or OTP, redirect to forgot password
+    if (!emailParam || !otpParam) {
+      toast.error('Invalid reset link. Please request a new password reset.');
+      router.push('/forget-password');
+    }
+  }, [searchParams, router]);
 
   const passwordStrength = usePasswordStrength(formData.password);
 
@@ -79,26 +100,37 @@ export default function ResetPasswordPage() {
     
     if (!validateForm()) return;
 
-    setIsLoading(true);
-    
     try {
-      // TODO: Implement API call
-      console.log('Reset password data:', { password: formData.password });
+      await resetPassword({
+        email,
+        OTP: otp,
+        newPassword: formData.password,
+      }).unwrap();
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Clear stored reset data
+      localStorage.removeItem('resetEmail');
+      localStorage.removeItem('resetOTP');
       
       setIsSuccess(true);
+      toast.success('Password reset successfully!');
       
       // Redirect to signin page after successful reset
       setTimeout(() => {
         router.push('/signin');
       }, 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Reset password error:', error);
-      setErrors({ password: 'Failed to reset password. Please try again.' });
-    } finally {
-      setIsLoading(false);
+      
+      // Handle different error types
+      if (error?.status === 400) {
+        toast.error('Invalid OTP or expired reset link. Please request a new password reset.');
+        router.push('/forget-password');
+      } else if (error?.status === 404) {
+        toast.error('User not found. Please check your email address.');
+      } else {
+        toast.error(error?.data?.message || 'Failed to reset password. Please try again.');
+        setErrors({ password: 'Failed to reset password. Please try again.' });
+      }
     }
   };
 
@@ -212,9 +244,9 @@ export default function ResetPasswordPage() {
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={isLoading || !passwordStrength.isValid}
+                disabled={isResetting || !passwordStrength.isValid}
               >
-                {isLoading ? 'Resetting Password...' : 'Reset Password'}
+                {isResetting ? 'Resetting Password...' : 'Reset Password'}
               </Button>
 
               {/* Sign In Link */}

@@ -110,18 +110,28 @@ export interface AuthResponse {
   token: string;
 }
 
+// Password reset flow types (matching SecretBox API)
+export interface ForgetPasswordRequest {
+  email: string;
+}
+
+export interface VerifyForgetPasswordRequest {
+  email: string;
+  OTP: string;
+}
+
 export interface ResetPasswordRequest {
   email: string;
+  OTP: string;
+  newPassword: string;
 }
 
-export interface VerifyCodeRequest {
-  email: string;
-  code: string;
-}
-
-export interface UpdatePasswordRequest {
-  token: string;
-  password: string;
+// Change password type
+export interface ChangePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+  flag: 'stayLoggedIn' | 'fromAll' | 'logout';
 }
 
 export interface ResendVerificationRequest {

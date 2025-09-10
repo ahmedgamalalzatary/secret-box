@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { KeyRound, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useForgetPasswordMutation } from '@/store/api/apiSlice';
+import { toast } from 'sonner';
 
 interface FormData {
   email: string;
@@ -20,12 +22,12 @@ interface FormErrors {
 
 export default function ForgetPasswordPage() {
   const router = useRouter();
+  const [forgetPassword, { isLoading }] = useForgetPasswordMutation();
   const [formData, setFormData] = useState<FormData>({
     email: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const validateForm = (): boolean => {
@@ -56,27 +58,34 @@ export default function ForgetPasswordPage() {
     e.preventDefault();
     
     if (!validateForm()) return;
-
-    setIsLoading(true);
     
     try {
-      // TODO: Implement API call
-      console.log('Forgot password request:', formData);
+      await forgetPassword({ email: formData.email }).unwrap();
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Store email for OTP verification
+      localStorage.setItem('resetEmail', formData.email);
       
       setIsSuccess(true);
+      toast.success('Verification code sent to your email!');
       
       // Redirect to OTP page after successful email submission
       setTimeout(() => {
         router.push('/forget-password/otp');
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Forgot password error:', error);
-      setErrors({ email: 'Failed to send reset email. Please try again.' });
-    } finally {
-      setIsLoading(false);
+      
+      // Handle different error types
+      if (error?.status === 404) {
+        setErrors({ email: 'Email address not found. Please check your email.' });
+        toast.error('Email address not found');
+      } else if (error?.status === 400) {
+        setErrors({ email: 'Invalid email address format.' });
+        toast.error('Invalid email address');
+      } else {
+        setErrors({ email: 'Failed to send reset email. Please try again.' });
+        toast.error('Failed to send verification code');
+      }
     }
   };
 

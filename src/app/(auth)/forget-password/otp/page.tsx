@@ -55,14 +55,26 @@ export default function ForgetPasswordCodePage() {
     setError('');
 
     try {
-      // TODO: Implement API call
-      console.log('Verifying password reset OTP:', otpValue);
+      // Get email from localStorage (stored from forget-password page)
+      const email = localStorage.getItem('resetEmail');
       
-      // Simulate API call
+      if (!email) {
+        setError('Session expired. Please start the password reset process again.');
+        router.push('/forget-password');
+        return;
+      }
+
+      // TODO: Implement OTP verification API call
+      console.log('Verifying password reset OTP:', { email, otp: otpValue });
+      
+      // Simulate API call for now
       await new Promise(resolve => setTimeout(resolve, 2000));
       
+      // Store OTP for reset password page
+      localStorage.setItem('resetOTP', otpValue);
+      
       // Redirect to reset password page after successful verification
-      router.push('/reset-password');
+      router.push(`/reset-password?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otpValue)}`);
     } catch (error) {
       console.error('OTP verification error:', error);
       setError('Invalid OTP. Please try again.');
