@@ -5,14 +5,14 @@ import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { OTPInput } from '@/components/auth/OTPInput';
-import { Mail, CheckCircle, Clock } from 'lucide-react';
+import { Smartphone, Clock } from 'lucide-react';
 
-export default function ConfirmEmailPage() {
+export default function ForgetPasswordCodePage() {
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState('');
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(120); // 2 minutes in seconds
   const [canResend, setCanResend] = useState(false);
 
   // Countdown timer
@@ -53,13 +53,13 @@ export default function ConfirmEmailPage() {
 
     try {
       // TODO: Implement API call
-      console.log('Verifying OTP:', otpValue);
+      console.log('Verifying password reset OTP:', otpValue);
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Redirect to dashboard after successful verification
-      window.location.href = '/profile';
+      // Redirect to reset password page after successful verification
+      window.location.href = '/reset-password';
     } catch (error) {
       console.error('OTP verification error:', error);
       setError('Invalid OTP. Please try again.');
@@ -74,13 +74,13 @@ export default function ConfirmEmailPage() {
 
     try {
       // TODO: Implement API call
-      console.log('Resending OTP');
+      console.log('Resending password reset OTP');
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Reset timer and states
-      setTimeLeft(300);
+      setTimeLeft(120);
       setCanResend(false);
       setOtp('');
     } catch (error) {
@@ -107,26 +107,14 @@ export default function ConfirmEmailPage() {
         <Card>
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <Mail className="w-6 h-6 text-primary" />
+              <Smartphone className="w-6 h-6 text-primary" />
             </div>
-            <CardTitle className="text-2xl font-bold">Confirm Your Email</CardTitle>
+            <CardTitle className="text-2xl font-bold">Enter Verification Code</CardTitle>
             <p className="text-sm text-muted-foreground">
-              We&apos;ve sent a 6-digit verification code to your email address.
+              Enter the 6-digit code sent to your email to reset your password.
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <div className="flex items-start space-x-3">
-                <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div className="text-sm">
-                  <p className="font-medium text-foreground">Check your inbox</p>
-                  <p className="text-muted-foreground">
-                    Enter the 6-digit code we sent to your email address.
-                  </p>
-                </div>
-              </div>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* OTP Input */}
               <div className="space-y-2">
@@ -159,11 +147,11 @@ export default function ConfirmEmailPage() {
                 className="w-full" 
                 disabled={isLoading || otp.length !== 6}
               >
-                {isLoading ? 'Verifying...' : 'Verify Email'}
+                {isLoading ? 'Verifying...' : 'Verify Code'}
               </Button>
             </form>
 
-            {/* Resend Section */}
+            {/* Resend and Navigation */}
             <div className="space-y-3">
               <Button 
                 variant="outline" 
@@ -175,9 +163,8 @@ export default function ConfirmEmailPage() {
               </Button>
               
               <div className="text-center text-sm text-muted-foreground">
-                Already verified?{' '}
-                <a href="/signin" className="text-primary hover:underline">
-                  Sign in
+                <a href="/forget-password" className="text-primary hover:underline">
+                  Back to forgot password
                 </a>
               </div>
             </div>

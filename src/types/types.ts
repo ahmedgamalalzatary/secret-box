@@ -84,9 +84,25 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  name: string;
+  userName: string;
   email: string;
   password: string;
+  confirmPassword: string;
+  mobile: string;
+}
+
+// Password validation types
+export interface PasswordRequirement {
+  id: string;
+  label: string;
+  test: (password: string) => boolean;
+  met: boolean;
+}
+
+export interface PasswordStrength {
+  score: number;
+  requirements: PasswordRequirement[];
+  isValid: boolean;
 }
 
 export interface AuthResponse {
