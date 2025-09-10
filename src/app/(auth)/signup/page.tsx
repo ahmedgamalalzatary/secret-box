@@ -1,51 +1,80 @@
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { UserPlus } from 'lucide-react';
 
 export default function SignUpPage() {
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
-            <div className="w-full max-w-md space-y-4 p-6">
-                {/* Theme toggle buttons for testing */}
-                <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">Sign Up</h1>
-                    <div className="flex gap-2">
-                        <ThemeToggle />
-                    </div>
+        <div className="flex min-h-screen items-center justify-center bg-background text-foreground p-4">
+            <div className="w-full max-w-md space-y-6">
+                {/* Theme toggle */}
+                <div className="flex justify-end">
+                    <ThemeToggle />
                 </div>
                 
-                
-                
-                <form className="space-y-4">
-                    <div className="space-y-2">
-                        <label htmlFor="email" className="text-sm font-medium text-foreground">
-                            Email
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                            placeholder="Enter your email"
-                            required
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label htmlFor="password" className="text-sm font-medium text-foreground">
-                            Password
-                        </label>
-                        <input
-                            id="password"
-                            type="password"
-                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                            placeholder="Enter your password"
-                            required
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2 w-full"
-                    >
-                        Sign Up
-                    </button>
-                </form>
+                <Card>
+                    <CardHeader className="text-center">
+                        <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                            <UserPlus className="w-6 h-6 text-primary" />
+                        </div>
+                        <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                            Sign up to get started with your account
+                        </p>
+                    </CardHeader>
+                    <CardContent>
+                        <form className="space-y-4">
+                            <div className="space-y-2">
+                                <label htmlFor="name" className="text-sm font-medium text-foreground">
+                                    Full Name
+                                </label>
+                                <Input
+                                    id="name"
+                                    type="text"
+                                    placeholder="Enter your full name"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label htmlFor="email" className="text-sm font-medium text-foreground">
+                                    Email
+                                </label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label htmlFor="password" className="text-sm font-medium text-foreground">
+                                    Password
+                                </label>
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    placeholder="Create a password"
+                                    required
+                                />
+                            </div>
+                            <div className="bg-muted/50 p-3 rounded-lg">
+                                <p className="text-xs text-muted-foreground">
+                                    By creating an account, you agree to our Terms of Service and Privacy Policy.
+                                </p>
+                            </div>
+                            <Button type="submit" className="w-full">
+                                Create Account
+                            </Button>
+                            <div className="text-center text-sm text-muted-foreground">
+                                Already have an account?{' '}
+                                <a href="/signin" className="text-primary hover:underline">
+                                    Sign in
+                                </a>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
