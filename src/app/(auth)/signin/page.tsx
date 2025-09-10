@@ -88,7 +88,7 @@ export default function SignIn() {
 
       // Redirect to user profile after successful login
       router.push(`/profile/${response.user.id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
 
       // Handle different error types

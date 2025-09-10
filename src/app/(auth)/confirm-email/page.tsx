@@ -75,17 +75,17 @@ export default function ConfirmEmailPage() {
 
     try {
       await confirmEmail({ email, OTP: otpValue }).unwrap();
-      
+
       // Clear stored email
       localStorage.removeItem('confirmEmail');
-      
+
       toast.success('Email verified successfully! You can now sign in.');
-      
+
       // Redirect to signin page after successful verification
       router.push('/signin');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('OTP verification error:', error);
-      
+
       // Handle different error types
       if (error?.status === 400) {
         setError('Invalid or expired OTP. Please try again.');
@@ -118,16 +118,16 @@ export default function ConfirmEmailPage() {
 
     try {
       await resendVerification({ email }).unwrap();
-      
+
       // Reset timer and states
       setTimeLeft(300);
       setCanResend(false);
       setOtp('');
-      
+
       toast.success('New verification code sent to your email!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Resend OTP error:', error);
-      
+
       if (error?.status === 404) {
         setError('Account not found. Please sign up again.');
         toast.error('Account not found');
@@ -156,7 +156,7 @@ export default function ConfirmEmailPage() {
         <div className="flex justify-end">
           <ThemeToggle />
         </div>
-        
+
         <Card>
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -207,9 +207,9 @@ export default function ConfirmEmailPage() {
               </div>
 
               {/* Verify Button */}
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 disabled={isLoading || otp.length !== 6}
               >
                 {isLoading ? 'Verifying...' : 'Verify Email'}
@@ -218,15 +218,15 @@ export default function ConfirmEmailPage() {
 
             {/* Resend Section */}
             <div className="space-y-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full"
                 onClick={handleResendOTP}
                 disabled={!canResend || isResending}
               >
                 {isResending ? 'Resending...' : 'Resend verification code'}
               </Button>
-              
+
               <div className="text-center text-sm text-muted-foreground">
                 Already verified?{' '}
                 <Link href="/signin" className="text-primary hover:underline">
