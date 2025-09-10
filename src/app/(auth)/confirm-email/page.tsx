@@ -8,15 +8,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { OTPInput } from '@/components/auth/OTPInput';
 import { Mail, CheckCircle, Clock } from 'lucide-react';
+import { useConfirmEmailMutation, useResendVerificationMutation } from '@/store/api/apiSlice';
+import { toast } from 'sonner';
 
 export default function ConfirmEmailPage() {
   const router = useRouter();
+  const [confirmEmail, { isLoading }] = useConfirmEmailMutation();
+  const [resendVerification, { isLoading: isResending }] = useResendVerificationMutation();
   const [otp, setOtp] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState('');
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
   const [canResend, setCanResend] = useState(false);
+  const [email, setEmail] = useState('');
+
+  // Get email from localStorage and setup timer
+  useEffect(() => {
+    const storedEmail = localStorage.getItem('confirmEmail');
+    if (storedEmail) {
+      setEmail(storedEmail);
+    } else {
+      toast.error('Session expired. Please sign up again.');
+      router.push('/signup');
+    }
+  }, [router]);
 
   // Countdown timer
   useEffect(() => {
@@ -51,49 +65,82 @@ export default function ConfirmEmailPage() {
       return;
     }
 
-    setIsLoading(true);
+    if (!email) {
+      setError('Session expired. Please sign up again.');
+      router.push('/signup');
+      return;
+    }
+
     setError('');
 
     try {
-      // TODO: Implement API call
-      console.log('Verifying OTP:', otpValue);
+      await confirmEmail({ email, OTP: otpValue }).unwrap();
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Clear stored email
+      localStorage.removeItem('confirmEmail');
       
-      // TODO: Replace with actual user ID from API response
-      const userId = 'user123'; // This should come from your API response
+      toast.success('Email verified successfully! You can now sign in.');
       
-      // Redirect to user profile after successful verification
-      router.push(`/profile/${userId}`);
-    } catch (error) {
+      // Redirect to signin page after successful verification
+      router.push('/signin');
+    } catch (error: any) {
       console.error('OTP verification error:', error);
-      setError('Invalid OTP. Please try again.');
-    } finally {
-      setIsLoading(false);
+      
+      // Handle different error types
+      if (error?.status === 400) {
+        setError('Invalid or expired OTP. Please try again.');
+        toast.error('Invalid OTP');
+      } else if (error?.status === 404) {
+        setError('Account not found. Please sign up again.');
+        toast.error('Account not found');
+        router.push('/signup');
+      } else if (error?.status === 409) {
+        setError('Email already verified. You can sign in now.');
+        toast.success('Email already verified');
+        router.push('/signin');
+      } else {
+        const errorMessage = error?.data?.message || 'Verification failed. Please try again.';
+        setError(errorMessage);
+        toast.error(errorMessage);
+      }
     }
   };
 
   const handleResendOTP = async () => {
-    setIsResending(true);
     setError('');
 
+    if (!email) {
+      setError('Session expired. Please sign up again.');
+      toast.error('Session expired');
+      router.push('/signup');
+      return;
+    }
+
     try {
-      // TODO: Implement API call
-      console.log('Resending OTP');
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await resendVerification({ email }).unwrap();
       
       // Reset timer and states
       setTimeLeft(300);
       setCanResend(false);
       setOtp('');
-    } catch (error) {
+      
+      toast.success('New verification code sent to your email!');
+    } catch (error: any) {
       console.error('Resend OTP error:', error);
-      setError('Failed to resend OTP. Please try again.');
-    } finally {
-      setIsResending(false);
+      
+      if (error?.status === 404) {
+        setError('Account not found. Please sign up again.');
+        toast.error('Account not found');
+        router.push('/signup');
+      } else if (error?.status === 409) {
+        setError('Email already verified. You can sign in now.');
+        toast.success('Email already verified');
+        router.push('/signin');
+      } else {
+        const errorMessage = error?.data?.message || 'Failed to resend verification code.';
+        setError(errorMessage);
+        toast.error(errorMessage);
+      }
     }
   };
 

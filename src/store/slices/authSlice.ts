@@ -64,20 +64,20 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       });
 
-    // Register
+    // Signup
     builder
-      .addMatcher(apiSlice.endpoints.register.matchPending, (state) => {
+      .addMatcher(apiSlice.endpoints.signup.matchPending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addMatcher(apiSlice.endpoints.register.matchFulfilled, (state, action) => {
+      .addMatcher(apiSlice.endpoints.signup.matchFulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
       })
-      .addMatcher(apiSlice.endpoints.register.matchRejected, (state, action) => {
+      .addMatcher(apiSlice.endpoints.signup.matchRejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Registration failed';
         state.isAuthenticated = false;

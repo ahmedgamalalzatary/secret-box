@@ -11,7 +11,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PasswordStrengthIndicator, usePasswordStrength } from '@/components/auth/PasswordStrengthIndicator';
 import { UserPlus, Mail } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utilstilstilstilstilstils';
+import { useSignupMutation } from '@/store/api/apiSlice';
+import { toast } from 'sonner';
 
 interface FormData {
     userName: string;
@@ -31,6 +33,7 @@ interface FormErrors {
 
 export default function SignUpPage() {
     const router = useRouter();
+    const [signup, { isLoading }] = useSignupMutation();
     const [formData, setFormData] = useState<FormData>({
         userName: '',
         email: '',
@@ -40,7 +43,6 @@ export default function SignUpPage() {
     });
 
     const [errors, setErrors] = useState<FormErrors>({});
-    const [isLoading, setIsLoading] = useState(false);
     const [acceptTerms, setAcceptTerms] = useState(false);
 
     const passwordStrength = usePasswordStrength(formData.password);
@@ -119,21 +121,40 @@ export default function SignUpPage() {
 
         if (!validateForm()) return;
 
-        setIsLoading(true);
-
         try {
-            // TODO: Implement API call
-            console.log('Form data:', formData);
+            const response = await signup({
+                userName: formData.userName,
+                email: formData.email,
+                password: formData.password,
+                confirmPassword: formData.confirmPassword,
+                phone: formData.mobile, // API expects 'phone' not 'mobile'
+            }).unwrap();
+            
+            console.log('Signup successful:', response);
 
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Store email for email confirmation
+            localStorage.setItem('confirmEmail', formData.email);
+            
+            toast.success('Account created successfully! Please check your email for verification.');
 
             // Redirect to confirm email page after successful registration
             router.push('/confirm-email');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Registration error:', error);
-        } finally {
-            setIsLoading(false);
+            
+            // Handle different error types
+            if (error?.status === 409) {
+                setErrors({ email: 'Email already exists. Please use a different email or sign in.' });
+                toast.error('Email already registered');
+            } else if (error?.status === 400) {
+                const errorMessage = error?.data?.message || error?.data?.error || 'Invalid registration data.';
+                setErrors({ email: errorMessage });
+                toast.error(errorMessage);
+            } else {
+                const errorMessage = error?.data?.message || 'Registration failed. Please try again.';
+                setErrors({ email: errorMessage });
+                toast.error(errorMessage);
+            }
         }
     };
 

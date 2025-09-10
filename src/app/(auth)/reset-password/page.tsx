@@ -124,12 +124,17 @@ export default function ResetPasswordPage() {
       // Handle different error types
       if (error?.status === 400) {
         toast.error('Invalid OTP or expired reset link. Please request a new password reset.');
-        router.push('/forget-password');
+        setErrors({ password: 'Invalid OTP or expired reset link.' });
+        setTimeout(() => {
+          router.push('/forget-password');
+        }, 2000);
       } else if (error?.status === 404) {
         toast.error('User not found. Please check your email address.');
+        setErrors({ password: 'User not found.' });
       } else {
-        toast.error(error?.data?.message || 'Failed to reset password. Please try again.');
-        setErrors({ password: 'Failed to reset password. Please try again.' });
+        const errorMessage = error?.data?.message || 'Failed to reset password. Please try again.';
+        toast.error(errorMessage);
+        setErrors({ password: errorMessage });
       }
     }
   };

@@ -3,6 +3,7 @@ import type { RootState } from '../index';
 import type {
   User,
   AuthResponse,
+  SignupResponse,
   LoginRequest,
   RegisterRequest,
   ForgetPasswordRequest,
@@ -41,9 +42,9 @@ export const apiSlice = createApi({
       invalidatesTags: ['Auth', 'User'],
     }),
 
-    register: builder.mutation<AuthResponse, RegisterRequest>({
+    signup: builder.mutation<SignupResponse, RegisterRequest>({
       query: (userData) => ({
-        url: '/auth/register',
+        url: '/auth/signup',
         method: 'POST',
         body: userData,
       }),
@@ -103,9 +104,9 @@ export const apiSlice = createApi({
       }),
     }),
 
-    verifyEmail: builder.mutation<{ message: string }, { token: string }>({
+    confirmEmail: builder.mutation<void, { email: string; OTP: string }>({
       query: (data) => ({
-        url: '/auth/verify-email',
+        url: '/auth/confirm-email',
         method: 'POST',
         body: data,
       }),
@@ -132,14 +133,14 @@ export const apiSlice = createApi({
 // Export hooks
 export const {
   useLoginMutation,
-  useRegisterMutation,
+  useSignupMutation,
   useLogoutMutation,
   useForgetPasswordMutation,
   useVerifyForgetPasswordMutation,
   useResetPasswordMutation,
   useChangePasswordMutation,
   useResendVerificationMutation,
-  useVerifyEmailMutation,
+  useConfirmEmailMutation,
   useGetCurrentUserQuery,
   useUpdateProfileMutation,
 } = apiSlice;

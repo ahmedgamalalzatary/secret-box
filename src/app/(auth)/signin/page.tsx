@@ -9,7 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { LogIn, Mail } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utilstilstilstilstilstils';
+import { useLoginMutation } from '@/store/api/apiSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { setCredentials } from '@/store/slices/authSlice';
+import { toast } from 'sonner';
 
 interface FormData {
   email: string;
@@ -23,13 +27,14 @@ interface FormErrors {
 
 export default function SignIn() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [login, { isLoading }] = useLoginMutation();
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isLoading, setIsLoading] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -66,25 +71,41 @@ export default function SignIn() {
     e.preventDefault();
     
     if (!validateForm()) return;
-
-    setIsLoading(true);
     
     try {
-      // TODO: Implement API call
-      console.log('Login data:', formData);
+      const response = await login({
+        email: formData.email,
+        password: formData.password,
+      }).unwrap();
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Store user data and token in Redux
+      dispatch(setCredentials({
+        user: response.user,
+        token: response.token,
+      }));
       
-      // TODO: Replace with actual user ID from API response
-      const userId = 'user123'; // This should come from your API response
+      toast.success('Login successful!');
       
       // Redirect to user profile after successful login
-      router.push(`/profile/${userId}`);
-    } catch (error) {
+      router.push(`/profile/${response.user.id}`);
+    } catch (error: any) {
       console.error('Login error:', error);
-    } finally {
-      setIsLoading(false);
+      
+      // Handle different error types
+      if (error?.status === 401) {
+        setErrors({ email: 'Invalid email or password.' });
+        toast.error('Invalid credentials');
+      } else if (error?.status === 404) {
+        setErrors({ email: 'Account not found. Please sign up first.' });
+        toast.error('Account not found');
+      } else if (error?.status === 403) {
+        setErrors({ email: 'Account not verified. Please check your email.' });
+        toast.error('Account not verified');
+      } else {
+        const errorMessage = error?.data?.message || 'Login failed. Please try again.';
+        setErrors({ email: errorMessage });
+        toast.error(errorMessage);
+      }
     }
   };
 

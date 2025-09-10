@@ -88,7 +88,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   confirmPassword: string;
-  mobile: string;
+  phone: string; // API expects 'phone' not 'mobile'
 }
 
 // Password validation types
@@ -108,6 +108,15 @@ export interface PasswordStrength {
 export interface AuthResponse {
   user: User;
   token: string;
+}
+
+// Signup specific response (different from login)
+export interface SignupResponse {
+  message: string;
+  info: string;
+  data: {
+    id: string;
+  };
 }
 
 // Password reset flow types (matching SecretBox API)
@@ -136,6 +145,12 @@ export interface ChangePasswordRequest {
 
 export interface ResendVerificationRequest {
   email: string;
+}
+
+// Email confirmation types
+export interface ConfirmEmailRequest {
+  email: string;
+  OTP: string;
 }
 
 // API Error Types

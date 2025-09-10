@@ -8,12 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { OTPInput } from '@/components/auth/OTPInput';
 import { Smartphone, Clock } from 'lucide-react';
+import { useVerifyForgetPasswordMutation, useForgetPasswordMutation } from '@/store/api/apiSlice';
+import { toast } from 'sonner';
 
 export default function ForgetPasswordCodePage() {
   const router = useRouter();
+  const [verifyForgetPassword, { isLoading }] = useVerifyForgetPasswordMutation();
+  const [forgetPassword, { isLoading: isResending }] = useForgetPasswordMutation();
   const [otp, setOtp] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState('');
   const [timeLeft, setTimeLeft] = useState(120); // 2 minutes in seconds
   const [canResend, setCanResend] = useState(false);
@@ -51,7 +53,6 @@ export default function ForgetPasswordCodePage() {
       return;
     }
 
-    setIsLoading(true);
     setError('');
 
     try {
@@ -60,49 +61,71 @@ export default function ForgetPasswordCodePage() {
       
       if (!email) {
         setError('Session expired. Please start the password reset process again.');
+        toast.error('Session expired');
         router.push('/forget-password');
         return;
       }
 
-      // TODO: Implement OTP verification API call
-      console.log('Verifying password reset OTP:', { email, otp: otpValue });
-      
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await verifyForgetPassword({ email, OTP: otpValue }).unwrap();
       
       // Store OTP for reset password page
       localStorage.setItem('resetOTP', otpValue);
       
+      toast.success('OTP verified successfully!');
+      
       // Redirect to reset password page after successful verification
       router.push(`/reset-password?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otpValue)}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('OTP verification error:', error);
-      setError('Invalid OTP. Please try again.');
-    } finally {
-      setIsLoading(false);
+      
+      // Handle different error types
+      if (error?.status === 400) {
+        setError('Invalid or expired OTP. Please try again.');
+        toast.error('Invalid OTP');
+      } else if (error?.status === 404) {
+        setError('Email not found. Please restart the password reset process.');
+        toast.error('Email not found');
+        router.push('/forget-password');
+      } else {
+        setError('Verification failed. Please try again.');
+        toast.error('Verification failed');
+      }
     }
   };
 
   const handleResendOTP = async () => {
-    setIsResending(true);
     setError('');
 
     try {
-      // TODO: Implement API call
-      console.log('Resending password reset OTP');
+      // Get email from localStorage
+      const email = localStorage.getItem('resetEmail');
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!email) {
+        setError('Session expired. Please start the password reset process again.');
+        toast.error('Session expired');
+        router.push('/forget-password');
+        return;
+      }
+
+      await forgetPassword({ email }).unwrap();
       
       // Reset timer and states
       setTimeLeft(120);
       setCanResend(false);
       setOtp('');
-    } catch (error) {
+      
+      toast.success('New verification code sent!');
+    } catch (error: any) {
       console.error('Resend OTP error:', error);
-      setError('Failed to resend OTP. Please try again.');
-    } finally {
-      setIsResending(false);
+      
+      if (error?.status === 404) {
+        setError('Email not found. Please restart the password reset process.');
+        toast.error('Email not found');
+        router.push('/forget-password');
+      } else {
+        setError('Failed to resend OTP. Please try again.');
+        toast.error('Failed to resend code');
+      }
     }
   };
 
