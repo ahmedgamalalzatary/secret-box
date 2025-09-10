@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,7 @@ interface FormErrors {
 }
 
 export default function SignIn() {
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -73,8 +75,11 @@ export default function SignIn() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Redirect to dashboard after successful login
-      window.location.href = '/search';
+      // TODO: Replace with actual user ID from API response
+      const userId = 'user123'; // This should come from your API response
+      
+      // Redirect to user profile after successful login
+      router.push(`/profile/${userId}`);
     } catch (error) {
       console.error('Login error:', error);
     } finally {
@@ -85,6 +90,11 @@ export default function SignIn() {
   const handleGoogleSignIn = () => {
     // TODO: Implement Google OAuth
     console.log('Google sign in clicked');
+  };
+
+  const handleGuestLogin = () => {
+    // Guest login redirects to search page
+    router.push('/search');
   };
 
   return (
@@ -122,7 +132,7 @@ export default function SignIn() {
                 type="button"
                 variant="secondary"
                 className="w-full"
-                onClick={() => window.location.href = '/search'}
+                onClick={handleGuestLogin}
               >
                 Continue as Guest
               </Button>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,7 @@ interface FormErrors {
 }
 
 export default function ForgetPasswordPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     email: '',
   });
@@ -67,7 +69,7 @@ export default function ForgetPasswordPage() {
       
       // Redirect to OTP page after successful email submission
       setTimeout(() => {
-        window.location.href = '/forget-password/otp';
+        router.push('/forget-password/otp');
       }, 2000);
     } catch (error) {
       console.error('Forgot password error:', error);
@@ -103,7 +105,7 @@ export default function ForgetPasswordPage() {
                 </p>
               </div>
               <Button 
-                onClick={() => window.location.href = '/forget-password/otp'}
+                onClick={() => router.push('/forget-password/otp')}
                 className="w-full"
               >
                 Continue to Verification

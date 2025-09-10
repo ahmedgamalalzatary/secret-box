@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { OTPInput } from '@/components/auth/OTPInput';
 import { Smartphone, Clock } from 'lucide-react';
 
 export default function ForgetPasswordCodePage() {
+  const router = useRouter();
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -59,7 +61,7 @@ export default function ForgetPasswordCodePage() {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Redirect to reset password page after successful verification
-      window.location.href = '/reset-password';
+      router.push('/reset-password');
     } catch (error) {
       console.error('OTP verification error:', error);
       setError('Invalid OTP. Please try again.');

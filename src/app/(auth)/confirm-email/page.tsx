@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { OTPInput } from '@/components/auth/OTPInput';
 import { Mail, CheckCircle, Clock } from 'lucide-react';
 
 export default function ConfirmEmailPage() {
+  const router = useRouter();
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -58,8 +60,11 @@ export default function ConfirmEmailPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Redirect to dashboard after successful verification
-      window.location.href = '/profile';
+      // TODO: Replace with actual user ID from API response
+      const userId = 'user123'; // This should come from your API response
+      
+      // Redirect to user profile after successful verification
+      router.push(`/profile/${userId}`);
     } catch (error) {
       console.error('OTP verification error:', error);
       setError('Invalid OTP. Please try again.');

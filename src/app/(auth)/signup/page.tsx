@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PasswordStrengthIndicator, usePasswordStrength } from '@/components/auth/PasswordStrengthIndicator';
 import { UserPlus, Mail } from 'lucide-react';
@@ -27,6 +29,7 @@ interface FormErrors {
 }
 
 export default function SignUpPage() {
+    const router = useRouter();
     const [formData, setFormData] = useState<FormData>({
         userName: '',
         email: '',
@@ -37,6 +40,7 @@ export default function SignUpPage() {
 
     const [errors, setErrors] = useState<FormErrors>({});
     const [isLoading, setIsLoading] = useState(false);
+    const [acceptTerms, setAcceptTerms] = useState(false);
 
     const passwordStrength = usePasswordStrength(formData.password);
 
@@ -80,8 +84,13 @@ export default function SignUpPage() {
             newErrors.mobile = 'Please enter a valid mobile number';
         }
 
+        // Terms acceptance validation
+        if (!acceptTerms) {
+            // We'll show this error in the UI
+        }
+
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        return Object.keys(newErrors).length === 0 && acceptTerms;
     };
 
     const handleInputChange = (field: keyof FormData, value: string) => {
@@ -119,7 +128,7 @@ export default function SignUpPage() {
             await new Promise(resolve => setTimeout(resolve, 2000));
 
             // Redirect to confirm email page after successful registration
-            window.location.href = '/confirm-email';
+            router.push('/confirm-email');
         } catch (error) {
             console.error('Registration error:', error);
         } finally {
@@ -130,6 +139,11 @@ export default function SignUpPage() {
     const handleGoogleSignUp = () => {
         // TODO: Implement Google OAuth
         console.log('Google sign up clicked');
+    };
+
+    const handleGuestSignUp = () => {
+        // Guest signup redirects to search page
+        router.push('/search');
     };
 
     return (
@@ -168,7 +182,7 @@ export default function SignUpPage() {
                                     type="button"
                                     variant="secondary"
                                     className="w-full"
-                                    onClick={() => window.location.href = '/search'}
+                                    onClick={handleGuestSignUp}
                                 >
                                     Continue as Guest
                                 </Button>
@@ -286,12 +300,24 @@ export default function SignUpPage() {
                                 </div>
 
                                 {/* Terms and Privacy */}
-                                <div className="flex bg-muted/50 p-3 rounded-lg">
-                                <input type='checkbox' required></input>
-                                    <p className="text-xs text-muted-foreground pl-4">
-                                        By creating an account, you agree to our Terms of Service and Privacy Policy.
-                                    </p>
+                                <div className="flex items-start space-x-3 bg-muted/50 p-3 rounded-lg">
+                                    <Checkbox
+                                        id="terms"
+                                        checked={acceptTerms}
+                                        onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                                        className="mt-0.5"
+                                        required
+                                    />
+                                    <label htmlFor="terms" className="text-xs text-muted-foreground cursor-pointer">
+                                        By creating an account, you agree to our{' '}
+                                        <a href="#" className="text-primary hover:underline">Terms of Service</a>
+                                        {' '}and{' '}
+                                        <a href="#" className="text-primary hover:underline">Privacy Policy</a>.
+                                    </label>
                                 </div>
+                                {!acceptTerms && (
+                                    <p className="text-sm text-red-600">You must accept the terms and conditions</p>
+                                )}
 
                                 {/* Submit Button */}
                                 <Button

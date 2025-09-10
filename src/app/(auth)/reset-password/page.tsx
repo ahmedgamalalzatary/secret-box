@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { PasswordStrengthIndicator, usePasswordStrength } from '@/components/auth/PasswordStrengthIndicator';
 import { Lock, CheckCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface FormData {
   password: string;
@@ -20,6 +20,7 @@ interface FormErrors {
 }
 
 export default function ResetPasswordPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     password: '',
     confirmPassword: '',
@@ -90,7 +91,7 @@ export default function ResetPasswordPage() {
       
       // Redirect to signin page after successful reset
       setTimeout(() => {
-        window.location.href = '/signin';
+        router.push('/signin');
       }, 3000);
     } catch (error) {
       console.error('Reset password error:', error);
@@ -126,7 +127,7 @@ export default function ResetPasswordPage() {
                 </p>
               </div>
               <Button 
-                onClick={() => window.location.href = '/signin'}
+                onClick={() => router.push('/signin')}
                 className="w-full"
               >
                 Continue to Sign In
