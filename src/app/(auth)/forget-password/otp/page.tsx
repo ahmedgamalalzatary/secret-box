@@ -58,7 +58,7 @@ export default function ForgetPasswordCodePage() {
     try {
       // Get email from localStorage (stored from forget-password page)
       const email = localStorage.getItem('resetEmail');
-      
+
       if (!email) {
         setError('Session expired. Please start the password reset process again.');
         toast.error('Session expired');
@@ -67,17 +67,17 @@ export default function ForgetPasswordCodePage() {
       }
 
       await verifyForgetPassword({ email, OTP: otpValue }).unwrap();
-      
+
       // Store OTP for reset password page
       localStorage.setItem('resetOTP', otpValue);
-      
+
       toast.success('OTP verified successfully!');
-      
+
       // Redirect to reset password page after successful verification
       router.push(`/reset-password?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otpValue)}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('OTP verification error:', error);
-      
+
       // Handle different error types
       if (error?.status === 400) {
         setError('Invalid or expired OTP. Please try again.');
@@ -99,7 +99,7 @@ export default function ForgetPasswordCodePage() {
     try {
       // Get email from localStorage
       const email = localStorage.getItem('resetEmail');
-      
+
       if (!email) {
         setError('Session expired. Please start the password reset process again.');
         toast.error('Session expired');
@@ -108,16 +108,16 @@ export default function ForgetPasswordCodePage() {
       }
 
       await forgetPassword({ email }).unwrap();
-      
+
       // Reset timer and states
       setTimeLeft(120);
       setCanResend(false);
       setOtp('');
-      
+
       toast.success('New verification code sent!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Resend OTP error:', error);
-      
+
       if (error?.status === 404) {
         setError('Email not found. Please restart the password reset process.');
         toast.error('Email not found');
@@ -141,7 +141,7 @@ export default function ForgetPasswordCodePage() {
         <div className="flex justify-end">
           <ThemeToggle />
         </div>
-        
+
         <Card>
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -180,9 +180,9 @@ export default function ForgetPasswordCodePage() {
               </div>
 
               {/* Verify Button */}
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 disabled={isLoading || otp.length !== 6}
               >
                 {isLoading ? 'Verifying...' : 'Verify Code'}
@@ -191,15 +191,15 @@ export default function ForgetPasswordCodePage() {
 
             {/* Resend and Navigation */}
             <div className="space-y-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full"
                 onClick={handleResendOTP}
                 disabled={!canResend || isResending}
               >
                 {isResending ? 'Resending...' : 'Resend verification code'}
               </Button>
-              
+
               <div className="text-center text-sm text-muted-foreground">
                 <Link href="/forget-password" className="text-primary hover:underline">
                   Back to forgot password

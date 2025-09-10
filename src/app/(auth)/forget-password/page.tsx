@@ -72,7 +72,7 @@ export default function ForgetPasswordPage() {
       setTimeout(() => {
         router.push('/forget-password/otp');
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Forgot password error:', error);
 
       // Handle different error types

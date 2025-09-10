@@ -26,7 +26,7 @@ export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [resetPassword, { isLoading: isResetting }] = useResetPasswordMutation();
-  
+
   const [formData, setFormData] = useState<FormData>({
     password: '',
     confirmPassword: '',
@@ -41,10 +41,10 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const emailParam = searchParams.get('email') || localStorage.getItem('resetEmail') || '';
     const otpParam = searchParams.get('otp') || localStorage.getItem('resetOTP') || '';
-    
+
     setEmail(emailParam);
     setOtp(otpParam);
-    
+
     // If no email or OTP, redirect to forgot password
     if (!emailParam || !otpParam) {
       toast.error('Invalid reset link. Please request a new password reset.');
@@ -77,7 +77,7 @@ export default function ResetPasswordPage() {
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     try {
@@ -106,21 +106,21 @@ export default function ResetPasswordPage() {
         OTP: otp,
         newPassword: formData.password,
       }).unwrap();
-      
+
       // Clear stored reset data
       localStorage.removeItem('resetEmail');
       localStorage.removeItem('resetOTP');
-      
+
       setIsSuccess(true);
       toast.success('Password reset successfully!');
-      
+
       // Redirect to signin page after successful reset
       setTimeout(() => {
         router.push('/signin');
       }, 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Reset password error:', error);
-      
+
       // Handle different error types
       if (error?.status === 400) {
         toast.error('Invalid OTP or expired reset link. Please request a new password reset.');
@@ -147,7 +147,7 @@ export default function ResetPasswordPage() {
           <div className="flex justify-end">
             <ThemeToggle />
           </div>
-          
+
           <Card>
             <CardHeader className="text-center">
               <div className="mx-auto w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-4">
@@ -164,7 +164,7 @@ export default function ResetPasswordPage() {
                   Redirecting to sign in page...
                 </p>
               </div>
-              <Button 
+              <Button
                 onClick={() => router.push('/signin')}
                 className="w-full"
               >
@@ -184,7 +184,7 @@ export default function ResetPasswordPage() {
         <div className="flex justify-end">
           <ThemeToggle />
         </div>
-        
+
         <Card>
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -246,9 +246,9 @@ export default function ResetPasswordPage() {
               </div>
 
               {/* Submit Button */}
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 disabled={isResetting || !passwordStrength.isValid}
               >
                 {isResetting ? 'Resetting Password...' : 'Reset Password'}
