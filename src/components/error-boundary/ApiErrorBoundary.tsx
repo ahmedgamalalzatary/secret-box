@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 interface ApiError {
@@ -17,6 +18,8 @@ interface ApiErrorBoundaryProps {
 }
 
 export function ApiErrorBoundary({ children }: ApiErrorBoundaryProps) {
+  const router = useRouter();
+  
   // Global error handler for API errors
   useEffect(() => {
     const handleApiError = (error: ApiError) => {
@@ -35,7 +38,7 @@ export function ApiErrorBoundary({ children }: ApiErrorBoundaryProps) {
             description: 'Please sign in to continue',
             action: {
               label: 'Sign In',
-              onClick: () => window.location.href = '/signin',
+              onClick: () => router.push('/signin'),
             },
           });
           break;
@@ -102,7 +105,7 @@ export function ApiErrorBoundary({ children }: ApiErrorBoundaryProps) {
     return () => {
       delete (window as unknown as Record<string, unknown>).__apiErrorHandler;
     };
-  }, []);
+  }, [router]);
 
   // Handle network status changes
   useEffect(() => {
@@ -140,6 +143,8 @@ export function ApiErrorBoundary({ children }: ApiErrorBoundaryProps) {
 
 // Hook for manual API error handling
 export function useApiErrorHandler() {
+  const router = useRouter();
+  
   const handleError = (error: unknown) => {
     if (error && typeof error === 'object' && 'status' in error) {
       const apiError = error as ApiError;
@@ -151,7 +156,7 @@ export function useApiErrorHandler() {
             description: 'Please sign in again',
             action: {
               label: 'Sign In',
-              onClick: () => window.location.href = '/signin',
+              onClick: () => router.push('/signin'),
             },
           });
           break;

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -165,9 +166,9 @@ export default function ForgetPasswordPage() {
               
               <div className="text-center text-sm text-muted-foreground">
                 Remember your password?{' '}
-                <a href="/signin" className="text-primary hover:underline">
+                <Link href="/signin" className="text-primary hover:underline">
                   Sign in
-                </a>
+                </Link>
               </div>
             </form>
           </CardContent>

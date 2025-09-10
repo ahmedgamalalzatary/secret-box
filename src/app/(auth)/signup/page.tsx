@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -310,9 +311,9 @@ export default function SignUpPage() {
                                     />
                                     <label htmlFor="terms" className="text-xs text-muted-foreground cursor-pointer">
                                         By creating an account, you agree to our{' '}
-                                        <a href="#" className="text-primary hover:underline">Terms of Service</a>
+                                        <Link href="#" className="text-primary hover:underline">Terms of Service</Link>
                                         {' '}and{' '}
-                                        <a href="#" className="text-primary hover:underline">Privacy Policy</a>.
+                                        <Link href="#" className="text-primary hover:underline">Privacy Policy</Link>.
                                     </label>
                                 </div>
                                 {!acceptTerms && (
@@ -331,16 +332,16 @@ export default function SignUpPage() {
                                 {/* Sign In Link */}
                                 <div className="text-center text-sm text-muted-foreground">
                                     Already have an account?{' '}
-                                    <a href="/signin" className="text-primary hover:underline">
+                                    <Link href="/signin" className="text-primary hover:underline">
                                         Sign in
-                                    </a>
+                                    </Link>
                                 </div>
 
                                 {/* Forgot Password Link */}
                                 <div className="text-center">
-                                    <a href="/forget-password" className="text-sm text-primary hover:underline">
+                                    <Link href="/forget-password" className="text-sm text-primary hover:underline">
                                         Forgot your password?
-                                    </a>
+                                    </Link>
                                 </div>
                             </form>
                         </CardContent>

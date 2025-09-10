@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 interface ApiError {
@@ -11,6 +12,8 @@ interface ApiError {
 }
 
 export function useApiError(error: unknown, isError: boolean) {
+  const router = useRouter();
+  
   useEffect(() => {
     if (isError && error) {
       const handleApiError = (error: ApiError) => {
@@ -29,7 +32,7 @@ export function useApiError(error: unknown, isError: boolean) {
               description: 'Please sign in to continue',
               action: {
                 label: 'Sign In',
-                onClick: () => window.location.href = '/signin',
+                onClick: () => router.push('/signin'),
               },
             });
             break;
@@ -104,5 +107,5 @@ export function useApiError(error: unknown, isError: boolean) {
         });
       }
     }
-  }, [error, isError]);
+  }, [error, isError, router]);
 }

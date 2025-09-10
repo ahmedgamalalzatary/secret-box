@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -190,9 +191,9 @@ export default function SignIn() {
 
               {/* Forgot Password Link */}
               <div className="flex items-center justify-between text-sm">
-                <a href="/forget-password" className="text-primary hover:underline">
+                <Link href="/forget-password" className="text-primary hover:underline">
                   Forgot password?
-                </a>
+                </Link>
               </div>
 
               {/* Submit Button */}
@@ -207,9 +208,9 @@ export default function SignIn() {
               {/* Sign Up Link */}
               <div className="text-center text-sm text-muted-foreground">
                 Don&apos;t have an account?{' '}
-                <a href="/signup" className="text-primary hover:underline">
+                <Link href="/signup" className="text-primary hover:underline">
                   Sign up
-                </a>
+                </Link>
               </div>
             </form>
           </CardContent>

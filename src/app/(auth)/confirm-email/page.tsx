@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -181,9 +182,9 @@ export default function ConfirmEmailPage() {
               
               <div className="text-center text-sm text-muted-foreground">
                 Already verified?{' '}
-                <a href="/signin" className="text-primary hover:underline">
+                <Link href="/signin" className="text-primary hover:underline">
                   Sign in
-                </a>
+                </Link>
               </div>
             </div>
           </CardContent>
