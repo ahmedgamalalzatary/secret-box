@@ -1,0 +1,38 @@
+{
+  "name": "fs",
+  "version": "1.0.0",
+  "main": "./src/index.js",
+  "type": "module",
+  "engines": {
+    "node": "22.18.0"
+  },
+  "scripts": {
+    "start:dev": "node --watch ./src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
+    "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.7.0",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.1",
+    "google-auth-library": "^10.1.0",
+    "helmet": "^8.1.0",
+    "init": "^0.1.2",
+    "joi": "^18.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.3",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "nanoid": "^5.1.5",
+    "node-schedule": "^2.1.1"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.2"
+  }
+}
