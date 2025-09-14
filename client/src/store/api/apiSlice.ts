@@ -17,7 +17,7 @@ import type {
 
 // Base query with auth token
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://secretbox-production.up.railway.app',
+  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000',
   prepareHeaders: (headers, { getState }) => {
     const accessToken = (getState() as RootState).auth.accessToken;
     if (accessToken) {

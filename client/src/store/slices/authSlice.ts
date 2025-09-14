@@ -58,12 +58,21 @@ const authSlice = createSlice({
       })
       .addMatcher(apiSlice.endpoints.login.matchFulfilled, (state, action) => {
         state.loading = false;
-        // Backend returns: { _id: string, credentials: { access_token, refresh_token } }
-        state.accessToken = action.payload.credentials.access_token;
-        state.refreshToken = action.payload.credentials.refresh_token;
-        state.isAuthenticated = true;
-        state.error = null;
-        // Note: User data needs to be fetched separately via getCurrentUser
+        // Backend wraps response in successResponse function
+        // Actual structure: { message?, info?, data: { _id, credentials: { access_token, refresh_token } } }
+        console.log('AUTH SLICE - Full payload:', action.payload);
+        const data = action.payload.data || action.payload;
+        console.log('AUTH SLICE - Data section:', data);
+        
+        if (data?.credentials) {
+          state.accessToken = data.credentials.access_token;
+          state.refreshToken = data.credentials.refresh_token;
+          state.isAuthenticated = true;
+          state.error = null;
+        } else {
+          console.error('AUTH SLICE - Invalid response structure:', action.payload);
+          state.error = 'Invalid response structure';
+        }
       })
       .addMatcher(apiSlice.endpoints.login.matchRejected, (state, action) => {
         state.loading = false;

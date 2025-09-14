@@ -73,23 +73,37 @@ export default function SignIn() {
     if (!validateForm()) return;
 
     try {
+      console.log('🚀 Attempting login with:', { email: formData.email });
+      console.log('🌐 API Base URL should be:', process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000');
+      
       const response = await login({
         email: formData.email,
         password: formData.password,
       }).unwrap();
+      
+      console.log('✅ Login response received:', response);
+      console.log('✅ Response type:', typeof response);
+      console.log('✅ Response keys:', Object.keys(response || {}));
+      console.log('✅ Response.credentials:', response?.credentials);
+      console.log('✅ Response structure:', JSON.stringify(response, null, 2));
 
-      // Store user data and token in Redux
+      // Store tokens in Redux - extract from response.data.credentials
       dispatch(setCredentials({
-        user: response.user,
-        token: response.token,
+        accessToken: response.data.credentials.access_token,
+        refreshToken: response.data.credentials.refresh_token,
       }));
 
       toast.success('Login successful!');
 
-      // Redirect to user profile after successful login
-      router.push(`/profile/${response.user.id}`);
+      // Redirect to dashboard after successful login
+      router.push('/search');
     } catch (error: unknown) {
       console.error('Login error:', error);
+      console.error('Error type:', typeof error);
+      console.error('Error keys:', Object.keys(error || {}));
+      console.error('Error status:', error?.status);
+      console.error('Error data:', error?.data);
+      console.error('Error message:', error?.message);
 
       // Handle different error types
       if (error?.status === 401) {
@@ -101,6 +115,12 @@ export default function SignIn() {
       } else if (error?.status === 403) {
         setErrors({ email: 'Account not verified. Please check your email.' });
         toast.error('Account not verified');
+      } else if (error?.status === 400 && error?.data?.message === 'Please Confirm Your Email First') {
+        setErrors({ email: 'Please confirm your email before logging in.' });
+        toast.error('Please confirm your email first');
+      } else if (error?.status === 409 && error?.data?.message === 'Invalid email or password') {
+        setErrors({ email: 'Invalid email or password.' });
+        toast.error('Invalid email or password');
       } else {
         const errorMessage = error?.data?.message || 'Login failed. Please try again.';
         setErrors({ email: errorMessage });
