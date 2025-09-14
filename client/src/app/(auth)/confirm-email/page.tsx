@@ -10,6 +10,7 @@ import { OTPInput } from '@/components/auth/OTPInput';
 import { Mail, CheckCircle, Clock } from 'lucide-react';
 import { useConfirmEmailMutation, useResendVerificationMutation } from '@/store/api/apiSlice';
 import { toast } from 'sonner';
+import type { RTKQueryError } from '@/types/types';
 
 export default function ConfirmEmailPage() {
   const router = useRouter();
@@ -84,22 +85,22 @@ export default function ConfirmEmailPage() {
       // Redirect to signin page after successful verification
       router.push('/signin');
     } catch (error: unknown) {
-      console.error('OTP verification error:', error);
+      const rtqError = error as RTKQueryError;
 
       // Handle different error types
-      if (error?.status === 400) {
+      if (rtqError?.status === 400) {
         setError('Invalid or expired OTP. Please try again.');
         toast.error('Invalid OTP');
-      } else if (error?.status === 404) {
+      } else if (rtqError?.status === 404) {
         setError('Account not found. Please sign up again.');
         toast.error('Account not found');
         router.push('/signup');
-      } else if (error?.status === 409) {
+      } else if (rtqError?.status === 409) {
         setError('Email already verified. You can sign in now.');
         toast.success('Email already verified');
         router.push('/signin');
       } else {
-        const errorMessage = error?.data?.message || 'Verification failed. Please try again.';
+        const errorMessage = rtqError?.data?.message || 'Verification failed. Please try again.';
         setError(errorMessage);
         toast.error(errorMessage);
       }
@@ -126,18 +127,18 @@ export default function ConfirmEmailPage() {
 
       toast.success('New verification code sent to your email!');
     } catch (error: unknown) {
-      console.error('Resend OTP error:', error);
+      const rtqError = error as RTKQueryError;
 
-      if (error?.status === 404) {
+      if (rtqError?.status === 404) {
         setError('Account not found. Please sign up again.');
         toast.error('Account not found');
         router.push('/signup');
-      } else if (error?.status === 409) {
+      } else if (rtqError?.status === 409) {
         setError('Email already verified. You can sign in now.');
         toast.success('Email already verified');
         router.push('/signin');
       } else {
-        const errorMessage = error?.data?.message || 'Failed to resend verification code.';
+        const errorMessage = rtqError?.data?.message || 'Failed to resend verification code.';
         setError(errorMessage);
         toast.error(errorMessage);
       }

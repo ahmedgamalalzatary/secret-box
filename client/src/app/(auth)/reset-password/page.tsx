@@ -11,6 +11,7 @@ import { PasswordStrengthIndicator, usePasswordStrength } from '@/components/aut
 import { useResetPasswordMutation } from '@/store/api/apiSlice';
 import { Lock, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import type { RTKQueryError } from '@/types/types';
 
 interface FormData {
   password: string;
@@ -119,20 +120,20 @@ export default function ResetPasswordPage() {
         router.push('/signin');
       }, 3000);
     } catch (error: unknown) {
-      console.error('Reset password error:', error);
+      const rtqError = error as RTKQueryError;
 
       // Handle different error types
-      if (error?.status === 400) {
+      if (rtqError?.status === 400) {
         toast.error('Invalid OTP or expired reset link. Please request a new password reset.');
         setErrors({ password: 'Invalid OTP or expired reset link.' });
         setTimeout(() => {
           router.push('/forget-password');
         }, 2000);
-      } else if (error?.status === 404) {
+      } else if (rtqError?.status === 404) {
         toast.error('User not found. Please check your email address.');
         setErrors({ password: 'User not found.' });
       } else {
-        const errorMessage = error?.data?.message || 'Failed to reset password. Please try again.';
+        const errorMessage = rtqError?.data?.message || 'Failed to reset password. Please try again.';
         toast.error(errorMessage);
         setErrors({ password: errorMessage });
       }

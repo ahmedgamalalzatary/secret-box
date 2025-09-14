@@ -106,12 +106,16 @@ export interface PasswordStrength {
   isValid: boolean;
 }
 
-// Login response from backend
+// Login response from backend (wrapped in successResponse)
 export interface LoginResponse {
-  _id: string;
-  credentials: {
-    access_token: string;
-    refresh_token: string;
+  message: string;
+  info: string;
+  data: {
+    _id: string;
+    credentials: {
+      access_token: string;
+      refresh_token: string;
+    };
   };
 }
 
@@ -168,6 +172,21 @@ export interface ResendVerificationRequest {
 export interface ConfirmEmailRequest {
   email: string;
   OTP: string;
+}
+
+// Backend error response structure
+export interface BackendErrorResponse {
+  message: string;
+  error?: Record<string, unknown>;
+  stack?: string;
+}
+
+// RTK Query error structure
+export interface RTKQueryError {
+  status?: number;
+  data?: BackendErrorResponse;
+  message?: string;
+  error?: string;
 }
 
 // API Error Types

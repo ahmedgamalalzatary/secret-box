@@ -11,6 +11,7 @@ import { KeyRound, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useForgetPasswordMutation } from '@/store/api/apiSlice';
 import { toast } from 'sonner';
+import type { RTKQueryError } from '@/types/types';
 
 interface FormData {
   email: string;
@@ -73,13 +74,13 @@ export default function ForgetPasswordPage() {
         router.push('/forget-password/otp');
       }, 2000);
     } catch (error: unknown) {
-      console.error('Forgot password error:', error);
+      const rtqError = error as RTKQueryError;
 
       // Handle different error types
-      if (error?.status === 404) {
+      if (rtqError?.status === 404) {
         setErrors({ email: 'Email address not found. Please check your email.' });
         toast.error('Email address not found');
-      } else if (error?.status === 400) {
+      } else if (rtqError?.status === 400) {
         setErrors({ email: 'Invalid email address format.' });
         toast.error('Invalid email address');
       } else {

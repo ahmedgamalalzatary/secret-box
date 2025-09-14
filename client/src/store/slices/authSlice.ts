@@ -59,10 +59,8 @@ const authSlice = createSlice({
       .addMatcher(apiSlice.endpoints.login.matchFulfilled, (state, action) => {
         state.loading = false;
         // Backend wraps response in successResponse function
-        // Actual structure: { message?, info?, data: { _id, credentials: { access_token, refresh_token } } }
-        console.log('AUTH SLICE - Full payload:', action.payload);
+        
         const data = action.payload.data || action.payload;
-        console.log('AUTH SLICE - Data section:', data);
         
         if (data?.credentials) {
           state.accessToken = data.credentials.access_token;
@@ -70,7 +68,6 @@ const authSlice = createSlice({
           state.isAuthenticated = true;
           state.error = null;
         } else {
-          console.error('AUTH SLICE - Invalid response structure:', action.payload);
           state.error = 'Invalid response structure';
         }
       })

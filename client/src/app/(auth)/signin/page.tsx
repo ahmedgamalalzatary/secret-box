@@ -14,6 +14,7 @@ import { useLoginMutation } from '@/store/api/apiSlice';
 import { useAppDispatch } from '@/store/hooks';
 import { setCredentials } from '@/store/slices/authSlice';
 import { toast } from 'sonner';
+import type { RTKQueryError } from '@/types/types';
 
 interface FormData {
   email: string;
@@ -73,19 +74,11 @@ export default function SignIn() {
     if (!validateForm()) return;
 
     try {
-      console.log('🚀 Attempting login with:', { email: formData.email });
-      console.log('🌐 API Base URL should be:', process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000');
       
       const response = await login({
         email: formData.email,
         password: formData.password,
       }).unwrap();
-      
-      console.log('✅ Login response received:', response);
-      console.log('✅ Response type:', typeof response);
-      console.log('✅ Response keys:', Object.keys(response || {}));
-      console.log('✅ Response.credentials:', response?.credentials);
-      console.log('✅ Response structure:', JSON.stringify(response, null, 2));
 
       // Store tokens in Redux - extract from response.data.credentials
       dispatch(setCredentials({
@@ -98,31 +91,26 @@ export default function SignIn() {
       // Redirect to dashboard after successful login
       router.push('/search');
     } catch (error: unknown) {
-      console.error('Login error:', error);
-      console.error('Error type:', typeof error);
-      console.error('Error keys:', Object.keys(error || {}));
-      console.error('Error status:', error?.status);
-      console.error('Error data:', error?.data);
-      console.error('Error message:', error?.message);
+      const rtqError = error as RTKQueryError;
 
       // Handle different error types
-      if (error?.status === 401) {
+      if (rtqError?.status === 401) {
         setErrors({ email: 'Invalid email or password.' });
         toast.error('Invalid credentials');
-      } else if (error?.status === 404) {
+      } else if (rtqError?.status === 404) {
         setErrors({ email: 'Account not found. Please sign up first.' });
         toast.error('Account not found');
-      } else if (error?.status === 403) {
+      } else if (rtqError?.status === 403) {
         setErrors({ email: 'Account not verified. Please check your email.' });
         toast.error('Account not verified');
-      } else if (error?.status === 400 && error?.data?.message === 'Please Confirm Your Email First') {
+      } else if (rtqError?.status === 400 && rtqError?.data?.message === 'Please Confirm Your Email First') {
         setErrors({ email: 'Please confirm your email before logging in.' });
         toast.error('Please confirm your email first');
-      } else if (error?.status === 409 && error?.data?.message === 'Invalid email or password') {
+      } else if (rtqError?.status === 409 && rtqError?.data?.message === 'Invalid email or password') {
         setErrors({ email: 'Invalid email or password.' });
         toast.error('Invalid email or password');
       } else {
-        const errorMessage = error?.data?.message || 'Login failed. Please try again.';
+        const errorMessage = rtqError?.data?.message || 'Login failed. Please try again.';
         setErrors({ email: errorMessage });
         toast.error(errorMessage);
       }

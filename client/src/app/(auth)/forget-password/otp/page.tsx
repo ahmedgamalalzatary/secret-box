@@ -10,6 +10,7 @@ import { OTPInput } from '@/components/auth/OTPInput';
 import { Smartphone, Clock } from 'lucide-react';
 import { useVerifyForgetPasswordMutation, useForgetPasswordMutation } from '@/store/api/apiSlice';
 import { toast } from 'sonner';
+import type { RTKQueryError } from '@/types/types';
 
 export default function ForgetPasswordCodePage() {
   const router = useRouter();
@@ -76,13 +77,13 @@ export default function ForgetPasswordCodePage() {
       // Redirect to reset password page after successful verification
       router.push(`/reset-password?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otpValue)}`);
     } catch (error: unknown) {
-      console.error('OTP verification error:', error);
+      const rtqError = error as RTKQueryError;
 
       // Handle different error types
-      if (error?.status === 400) {
+      if (rtqError?.status === 400) {
         setError('Invalid or expired OTP. Please try again.');
         toast.error('Invalid OTP');
-      } else if (error?.status === 404) {
+      } else if (rtqError?.status === 404) {
         setError('Email not found. Please restart the password reset process.');
         toast.error('Email not found');
         router.push('/forget-password');
@@ -116,9 +117,9 @@ export default function ForgetPasswordCodePage() {
 
       toast.success('New verification code sent!');
     } catch (error: unknown) {
-      console.error('Resend OTP error:', error);
+      const rtqError = error as RTKQueryError;
 
-      if (error?.status === 404) {
+      if (rtqError?.status === 404) {
         setError('Email not found. Please restart the password reset process.');
         toast.error('Email not found');
         router.push('/forget-password');
