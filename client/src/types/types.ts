@@ -14,7 +14,8 @@ export interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
-  token: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
 }
 
 // Password Reset Types
@@ -105,9 +106,25 @@ export interface PasswordStrength {
   isValid: boolean;
 }
 
+// Login response from backend
+export interface LoginResponse {
+  _id: string;
+  credentials: {
+    access_token: string;
+    refresh_token: string;
+  };
+}
+
+// Google signup/login response  
 export interface AuthResponse {
-  user: User;
-  token: string;
+  access_token: string;
+  refresh_token: string;
+}
+
+// Refresh token response
+export interface RefreshTokenResponse {
+  access_token: string;
+  refresh_token: string;
 }
 
 // Signup specific response (different from login)

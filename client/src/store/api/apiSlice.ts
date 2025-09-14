@@ -3,6 +3,8 @@ import type { RootState } from '../index';
 import type {
   User,
   AuthResponse,
+  LoginResponse,
+  RefreshTokenResponse,
   SignupResponse,
   LoginRequest,
   RegisterRequest,
@@ -17,9 +19,9 @@ import type {
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://secretbox-production.up.railway.app',
   prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.token;
-    if (token) {
-      headers.set('authorization', token);
+    const accessToken = (getState() as RootState).auth.accessToken;
+    if (accessToken) {
+      headers.set('authorization', `Bearer ${accessToken}`);
     }
     headers.set('content-type', 'application/json');
     return headers;
@@ -33,7 +35,7 @@ export const apiSlice = createApi({
   tagTypes: ['User', 'Auth'],
   endpoints: (builder) => ({
     // Authentication endpoints
-    login: builder.mutation<AuthResponse, LoginRequest>({
+    login: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({
         url: '/auth/login',
         method: 'POST',
@@ -51,10 +53,28 @@ export const apiSlice = createApi({
       invalidatesTags: ['Auth', 'User'],
     }),
 
-    logout: builder.mutation<void, void>({
+    signupWithGmail: builder.mutation<AuthResponse, { idToken: string }>({
+      query: (data) => ({
+        url: '/auth/signup/gmail',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Auth', 'User'],
+    }),
+
+    refreshToken: builder.mutation<RefreshTokenResponse, void>({
       query: () => ({
+        url: '/auth/refresh-token',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Auth'],
+    }),
+
+    logout: builder.mutation<void, { flag?: 'fromAll' | 'logout' }>({
+      query: (data = {}) => ({
         url: '/auth/logout',
         method: 'POST',
+        body: data,
       }),
       invalidatesTags: ['Auth', 'User'],
     }),
@@ -98,7 +118,7 @@ export const apiSlice = createApi({
     // Email verification endpoints
     resendVerification: builder.mutation<{ message: string }, ResendVerificationRequest>({
       query: (data) => ({
-        url: '/auth/resend-verification',
+        url: '/auth/re-send-confirm/email',
         method: 'POST',
         body: data,
       }),
@@ -106,8 +126,8 @@ export const apiSlice = createApi({
 
     confirmEmail: builder.mutation<void, { email: string; OTP: string }>({
       query: (data) => ({
-        url: '/auth/confirm-email',
-        method: 'POST',
+        url: '/auth/confirm/email',
+        method: 'PATCH',
         body: data,
       }),
       invalidatesTags: ['User'],
@@ -115,14 +135,14 @@ export const apiSlice = createApi({
 
     // User endpoints
     getCurrentUser: builder.query<User, void>({
-      query: () => '/auth/me',
+      query: () => '/users/profile',
       providesTags: ['User'],
     }),
 
     updateProfile: builder.mutation<User, Partial<User>>({
       query: (data) => ({
-        url: '/auth/profile',
-        method: 'PUT',
+        url: '/users/update-basic-info',
+        method: 'PATCH',
         body: data,
       }),
       invalidatesTags: ['User'],
@@ -134,6 +154,8 @@ export const apiSlice = createApi({
 export const {
   useLoginMutation,
   useSignupMutation,
+  useSignupWithGmailMutation,
+  useRefreshTokenMutation,
   useLogoutMutation,
   useForgetPasswordMutation,
   useVerifyForgetPasswordMutation,
