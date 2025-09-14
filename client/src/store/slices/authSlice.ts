@@ -26,6 +26,13 @@ const authSlice = createSlice({
       state.refreshToken = action.payload.refreshToken;
       state.isAuthenticated = true;
       state.error = null;
+      
+      // Debug: Log token storage
+      console.log('🔐 Tokens stored in Redux state:', {
+        accessToken: action.payload.accessToken ? 'Present' : 'Missing',
+        refreshToken: action.payload.refreshToken ? 'Present' : 'Missing',
+        isAuthenticated: true
+      });
     },
     
     clearCredentials: (state) => {

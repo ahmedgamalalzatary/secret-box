@@ -86,10 +86,24 @@ export default function SignIn() {
         refreshToken: response.data.credentials.refresh_token,
       }));
 
+      // Verify tokens are saved to localStorage after a short delay
+      setTimeout(() => {
+        const persistData = localStorage.getItem('persist:root');
+        if (persistData) {
+          const parsed = JSON.parse(persistData);
+          const authData = JSON.parse(parsed.auth);
+          console.log('✅ Verification: Tokens saved to localStorage:', {
+            accessToken: authData.accessToken ? 'Saved ✅' : 'Missing ❌',
+            refreshToken: authData.refreshToken ? 'Saved ✅' : 'Missing ❌'
+          });
+        }
+      }, 100);
+
       toast.success('Login successful!');
 
-      // Redirect to dashboard after successful login
-      router.push('/search');
+      // Redirect to user profile after successful login
+      const userId = response.data._id;
+      router.push(`/profile/${userId}`);
     } catch (error: unknown) {
       const rtqError = error as RTKQueryError;
 
