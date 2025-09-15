@@ -102,8 +102,7 @@ export default function SignIn() {
       toast.success('Login successful!');
 
       // Redirect to user profile after successful login
-      const userId = response.data._id;
-      router.push(`/profile/${userId}`);
+      router.push('/profile');
     } catch (error: unknown) {
       const rtqError = error as RTKQueryError;
 
