@@ -97,7 +97,11 @@ export class ComponentErrorBoundary extends Component<Props, State> {
                   Try Again
                 </Button>
                 <Button 
-                  onClick={() => window.location.reload()}
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      window.location.reload();
+                    }
+                  }}
                   className="flex-1"
                 >
                   Reload Page

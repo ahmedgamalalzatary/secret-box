@@ -1,10 +1,20 @@
 // User and Authentication Types
 export interface User {
-  id: string;
+  _id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  name: string;
-  avatar?: string;
-  emailVerified: boolean;
+  phone?: string;
+  userName: string;
+  role: 'user' | 'admin';
+  genderm?: string;
+  gender?: string;
+  picture?: {
+    secure_url: string;
+    public_id: string;
+  };
+  isEmailVerified?: boolean;
+  emailVerified?: boolean;
   createdAt: string;
   updatedAt: string;
 }

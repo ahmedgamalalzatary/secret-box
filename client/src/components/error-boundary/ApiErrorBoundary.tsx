@@ -88,7 +88,11 @@ export function ApiErrorBoundary({ children }: ApiErrorBoundaryProps) {
               description: 'Please check your internet connection and try again',
               action: {
                 label: 'Retry',
-                onClick: () => window.location.reload(),
+                onClick: () => {
+                  if (typeof window !== 'undefined') {
+                    window.location.reload();
+                  }
+                },
               },
             });
           } else {

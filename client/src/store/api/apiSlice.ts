@@ -134,7 +134,7 @@ export const apiSlice = createApi({
     }),
 
     // User endpoints
-    getCurrentUser: builder.query<User, void>({
+    getCurrentUser: builder.query<{ user: User }, void>({
       query: () => '/users/profile',
       providesTags: ['User'],
     }),
